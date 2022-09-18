@@ -1,3 +1,8 @@
+body {
+  background-color: black;
+  color: white;
+}
+
 #gameScreen {
   display: none;
 }
@@ -25,4 +30,5 @@
     margin: 20px;
     padding: 10px;
     border-radius: 25px;
+    color: white;
 }

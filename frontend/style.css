@@ -1,0 +1,28 @@
+#gameScreen {
+  display: none;
+}
+
+#container {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    height: 1000px;
+    text-align: center;
+}
+
+#initialScreen {
+    padding: 30px;
+    border: 1px solid cyan;
+}
+
+#gameCodeInput {
+    margin: 20px;
+}
+
+.buttons {
+    border: 1px solid cyan;
+    background: none;
+    margin: 20px;
+    padding: 10px;
+    border-radius: 25px;
+}

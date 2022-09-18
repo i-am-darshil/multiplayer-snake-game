@@ -15,12 +15,15 @@ joinGameBtn.addEventListener('click', joinGame);
 let canvas, ctx;
 let gameActive = false;
 
-const socket = io('http://127.0.0.1:3000');
-
-socket.on('init', handleInit);
-socket.on('gameState', handleGameState);
+let socket;
 
 function init() {
+    socket = io('http://127.0.0.1:3000');
+
+    socket.on('init', handleInit);
+    socket.on('gameState', handleGameState);
+    socket.on('gameOver', handleGameOver);
+
     initialScreen.style.display = "none";
     gameScreen.style.display = "block";
 
@@ -48,6 +51,7 @@ function joinGame() {
 
 function keydown(e) {
   console.log("Keyboard pressed", e.keyCode)
+  socket.emit('keydown', e.keyCode);
 }
 
 function paintGame(state) {
@@ -78,9 +82,23 @@ function handleInit(data) {
 }
 
 function handleGameState(gameState) {
+  console.log("handleGameState", gameState)
+
   if (!gameActive) {
       return;
   }
   gameState = JSON.parse(gameState);
   requestAnimationFrame(() => paintGame(gameState));
+}
+
+function handleGameOver(data) {
+  if (!gameActive) {
+      return;
+  }
+  data = JSON.parse(data);
+
+  gameActive = false;
+
+  alert(data.msg);
+
 }

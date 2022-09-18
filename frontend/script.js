@@ -15,6 +15,11 @@ joinGameBtn.addEventListener('click', joinGame);
 let canvas, ctx;
 let gameActive = false;
 
+const socket = io('http://127.0.0.1:3000');
+
+socket.on('init', handleInit);
+socket.on('gameState', handleGameState);
+
 function init() {
     initialScreen.style.display = "none";
     gameScreen.style.display = "block";
@@ -43,4 +48,39 @@ function joinGame() {
 
 function keydown(e) {
   console.log("Keyboard pressed", e.keyCode)
+}
+
+function paintGame(state) {
+  ctx.fillStyle = BG_COLOUR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const food = state.food;
+  const gridsize = state.gridsize;
+  const size = canvas.width / gridsize;
+
+  ctx.fillStyle = FOOD_COLOUR;
+  ctx.fillRect(food.x * size, food.y * size, size, size);
+
+  paintPlayer(state.players, size, SNAKE_COLOUR);
+}
+
+function paintPlayer(playerState, size, colour) {
+  const snake = playerState.snake;
+
+  ctx.fillStyle = colour;
+  for (let cell of snake) {
+      ctx.fillRect(cell.x * size, cell.y * size, size, size);
+  }
+}
+
+function handleInit(data) {
+  console.log("Data Received is", data)
+}
+
+function handleGameState(gameState) {
+  if (!gameActive) {
+      return;
+  }
+  gameState = JSON.parse(gameState);
+  requestAnimationFrame(() => paintGame(gameState));
 }

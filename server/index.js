@@ -12,17 +12,44 @@ const io = require('socket.io')(httpServer,{
 const { FRAME_RATE } = require('./constants');
 const { initGame, gameLoop, getUpdatedVelocity } = require('./game');
 
-const state = initGame();
+let state = {};
 
 io.on('connection', client => {
   console.log("connection")
+  state = initGame();
+  client.on('keydown', handleKeydown);
+  client.on('close', (reason) => {
+    console.log("Socket closed with reason:", reason)
+  })
   client.emit('init', {data: "Initializing Game"})
   startGameInterval(client);
+
+  function handleKeydown(keyCode) {
+
+    try {
+      keyCode = parseInt(keyCode);
+    } catch(e) {
+      console.error(e);
+      return;
+    }
+
+    const vel = getUpdatedVelocity(keyCode);
+
+    if (vel) {
+      state.players.vel = vel;
+    }
+  }
 });
 
 function startGameInterval(client) {
   const intervalId = setInterval(() => {
-    client.emit('gameState', JSON.stringify(state));
+    let winner = gameLoop(state);
+    if (!winner) {
+      client.emit('gameState', JSON.stringify(state));
+    } else {
+      clearInterval(intervalId);
+      client.emit('gameOver', JSON.stringify({msg: "Game over"}));
+    }
   }, 1000 / FRAME_RATE);
 }
 
